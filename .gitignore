@@ -1,0 +1,14 @@
+#  Object Files
+*.OBJ
+
+# List Files
+*.LST
+
+# Map files
+*.MAP
+
+# Executable files
+*.EXE
+
+# Backup files
+*.BAK
