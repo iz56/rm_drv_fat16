@@ -1,0 +1,46 @@
+
+macro dellrrrrrr {
+bpbBytesPerSector dw 0 ; 0x0B
+bpbSectorsPerCluster db 0 ; 0x0D
+bpbReservedSectors dw 0 ; 0x0E
+bpbNumberOfFATs db 0 ; 0x10
+bpbRootEntries dw 0 ; 0x11
+bpbTotalSectors dw 0 ; 0x13
+bpbMedia db 0 ; 0x15
+bpbSectorsPerFAT dw 0 ; 0x16
+bpbSectorsPerTrack dw 0 ; 0x18
+bpbHeadsPerCylinder dw 0 ; 0x1A
+bpbHiddenSectors dd 0 ; 0x1C
+bpbTotalSectorsBig dd 0 ; 0x20
+;/ BPB
+ 
+bsDriveNumber db 0 ; 0x24
+bsUnused db 0 ; 0x25
+bsExtBootSignature db 0 ; 0x26
+bsSerialNumber dd 0 ; 0x27
+bsVolumeLabel db 'XXXXXXXX' ; 0x2B
+bsFileSystem db 'XXXXXX' ; 0x36
+ 
+ 
+ 
+                                                 ---- !! ++++
+00000200 0000000512   EB3C 904D 5357 494E 342E 3100 0210 2100  ë<MSWIN4.1...!.
+                      ..&& &&?? ??   OOOO (((( hhhh ^^^^ ^^^^
+00000210 0000000528   0200 0200 00F8 EF00 3F00 FF00 2600 0000  .....øï.?.ÿ.&...
+                      tttt tttt
+00000220 0000000544   16B5 0E00 8000 29C0 D9F3 9D4E 4F20 4E41  .µ..€.)ÀÙóNO NA
+00000230 0000000560   4D45 2020 2020 4641 5431 3620 2020 33C9  ME    FAT16   3É
+00000240 0000000576   8ED1 BCFC 7B16 07BD 7800 C576 001E 5616  ŽÑ¼ü{..½x.Åv..V.
+00000250 0000000592   55BF 2205 897E 0089 4E02 B10B FCF3 A406  U¿".‰~.‰N.±.üó¤.
+00000260 0000000608   1FBD 007C C645 FE0F 384E 247D 208B C199  .½.|ÆEþ.8NS} ‹Á™
+00000270 0000000624   E87E 0183 EB3A 66A1 1C7C 663B 078A 57FC  è~.ƒë:f¡.|f;.ŠWü
+00000280 0000000640   7506 80CA 0288 5602 80C3 1073 ED33 C9FE  u.€Ê.ˆV.€Ã.sí3Éþ
+00000290 0000000656   06D8 7D8A 4610 98F7 6616 0346 1C13 561E  .Ø}ŠF.˜÷f..F..V.
+000002A0 0000000672   0346 0E13 D18B 7611 6089 46FC 8956 FEB8  .F..Ñ‹v.`‰Fü‰Vþ¸
+000002B0 0000000688   2000 F7E6 8B5E 0B03 C348 F7F3 0146 FC11   .÷æ‹^..ÃH÷ó.Fü.
+000002C0 0000000704   4EFE 61BF 0007 E828 0172 3E38 2D74 1760  Nþa¿..è(.r>8-t.`
+000002D0 0000000720   B10B BED8 7DF3 A661 743D 4E74 0983 C720  ±.¾Ø}ó¦at=Nt.ƒÇ
+000002E0 0000000736   3BFB 72E7 EBDD FE0E D87D 7BA7 BE7F 7DAC  ;ûrçëÝþ.Ø}{§¾}¬
+000002F0 0000000752   9803 F0AC 9840 740C 4874 13B4 0EBB 0700  ˜.ð¬˜@t.Ht.´.»..
+ 
+                  }
