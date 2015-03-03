@@ -25,11 +25,21 @@ macro align value { rb (value-1) - ($ + value-1) mod value }
        xor      eax,eax
        int      37h
  
+;push cs
+;pop ds
+ 
+xor ax,ax
+int 16h
+ 
 push cs
 pop es
 mov si,Top
 xor ax,ax
 int 87h
+ 
+xor ax,ax
+int 16h
+ 
 ;mov ah,9
 ;int 21h
  
@@ -69,7 +79,7 @@ Kernel:
        retf
  
 ;testName:  db 'EMD.COM'
-testName:  db 'SETDRV.ASM'
+testName:  db 'SETDRV.ASm'
  
 align 16
        Top      = $

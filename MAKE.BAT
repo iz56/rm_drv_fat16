@@ -1,3 +1,4 @@
+rem make and execute drver on ms-dos and fat16 hdd (fasm needed)
 del fsdrv.bin
 cd i37h
 call make

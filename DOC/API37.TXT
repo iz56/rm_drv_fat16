@@ -5,27 +5,28 @@ api37.txt
 ;use file read API:
  
 FileName db 'FILE    TXT' ;spaces! ,size=11bytes!
-or db 'FILE.TXT'
-or db 'FILE.EX',0 ;if ext < 3 - then must be zero end
-
 align 16
 buf: ;here will be data of reading file
        ...
  
        mov      si,FileName
-mov di,buf ;if di not aligned 16 ,then error (6)
+mov di,buf
 ;es= seg of buf
-mov dl,80h ;-num of drive - not need for 80h/ if 81h then must be set
+mov dl,80h ;-num of drive
        xor      eax,eax
        int      37h
- return eax=
-   FILE_NOT_FAUND = 1
-   FILE_OK  = 2
-   DISK_IO_ERROR = 3
-   INIT_ERROR = 4
-   BIOS_FUN_42_ERROR = 5
-   API_TARGET_OFFSET_ALIGN_ERROR = 6
-return ecx=size of file 
+ 
+ 
+ 
+ 
+ 
+FILE_NOT_FAUND = 1
+FILE_OK  = 2
+DISK_IO_ERROR = 3
+INIT_ERROR = 4
+BIOS_FUN_42_ERROR = 5
+API_TARGET_OFFSET_ALIGN_ERROR = 6
+ 
  
        --------------------------------------------------------------
  
@@ -37,7 +38,7 @@ return ecx=size of file
 TextToPrint db 'some text$',0 ;$=terminator of string (dos string format)
        ...
  
-       mov      si,TextToPrint ;size of str < 80 chars
+       mov      si,TextToPrint
        xor      eax,eax ;ax=0
        int      87h
  

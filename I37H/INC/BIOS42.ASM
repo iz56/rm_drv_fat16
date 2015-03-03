@@ -1,4 +1,4 @@
-;biosdisk.asm
+;bios42.asm
  
  
 ;LBA HDD read in real mode CPU x86, fasm

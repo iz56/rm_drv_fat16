@@ -12,7 +12,7 @@
        mov      dword [saveall32regs.esireg],esi
        mov      dword [saveall32regs.edireg],edi
        pop      ax
-       push     ax
+;       push     ax
        mov      word [saveall16_seg_regs.ds_reg],ax
        push     es
        pop      ax
@@ -27,30 +27,49 @@
  
 new_handler:
        pushad
-       push     ds ;!saveall ds take from stack
+push ds
        push     cs
        pop      ds
        saveall  ;save all
+ 
+       push     cs
+       pop      es ;set ds=es=cs
+ 
        mov      dword eax,[saveall32regs.eaxreg]
        shl      ax,1 ;x2
        mov      bx,int_table ;see file table.asm
        add      bx,ax
        jmp      word [bx]
  
+Error:
+FatalError:
+       DbgDsplLine
+       DbgDspl  'Fatal Error ('
+       mov      al,byte [ExitCod] ;return [1]
+   DbgDsplALh
+       DbgDspl  ').'
+       DbgDsplLine
+ 
+ 
 int_exit:
        mov      word sp,[saveall16_seg_regs.sp_reg]
- 
-       pop      ds
+pop ds
        popad
  
-       push     ds
        push     cs
        pop      ds
        mov      al,byte [ExitCod] ;return [1]
        mov      ecx,dword [returnEcx] ;return [2]
-       pop      ds
+ 
+       mov      word es,[saveall16_seg_regs.es_reg]
+       push ax
+mov ax,  word [saveall16_seg_regs.ds_reg]
+mov ds,ax
+       pop      ax
+ 
        cld
        iret
+ 
  
 ExitCod db 0
 returnEcx dd 0

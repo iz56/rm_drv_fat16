@@ -2,19 +2,18 @@
  
        include  'inc\macro.asm'
  
-;0=ok - not error
+       FILE_OK  = 0
        FILE_NOT_FAUND = 1
-       FILE_OK  = 2
-       DISK_IO_ERROR = 3
-       INIT_ERROR = 4
-       BIOS_FUN_42_ERROR = 5
-API_TARGET_OFFSET_ALIGN_ERROR = 6
+       DISK_IO_ERROR = 2
+       INIT_ERROR = 3
+       BIOS_FUN_42_ERROR = 4
+       API_TARGET_OFFSET_ALIGN_ERROR = 5
+       FILE_NAME_IS_BAD = 6
  
-       org      2560
+       org      2560 ;size of i87h.bin
        use16
  
-;init driver All here
- 
+;init driver - set new handler for 37h interrupt
        mov      ax,37h
        mov      word bx,new_handler
        call     hook ;\int\hook.asm
@@ -24,32 +23,6 @@ API_TARGET_OFFSET_ALIGN_ERROR = 6
        int      16h
        jmp      Wexit
  
- 
-;mov di,boot ; set di=memory for BPB (+3 bytes at start)
-;mov cx,SIZE_BPB
-GetMBR_GetVBR_GetBPBfromIt:
-       pusha
- 
-       include  'initBPB.asm' ;return ax=memory BPB+3bytesStart
- 
-       mov      [.saveTmpBPBptr],ax
-       popa
-       mov      si,[.saveTmpBPBptr]
-       mov      cx,0x036
-.l1:
-       mov      al,[si]
-       mov      [di],al
-       inc      si
-       inc      di
-       dec      cx
-       jnz      .l1
- 
-       clc
-       ret
-.saveTmpBPBptr dw 0
-.err:
-       stc
-       ret
  
        include  'inc\int\hook.asm'
        include  'inc\int\intman.asm'
@@ -67,18 +40,7 @@ GetMBR_GetVBR_GetBPBfromIt:
        include  'inc\hex.asm'
  
        include  'inc\fnconv.asm'
-ReadFileMain:
-       mov      [ExitCod],byte INIT_ERROR
- 
-;here set memory for work
-       push     ax
-       push     cs
-       pop      ax
-       add      ax,0x1000
-       call     SetFreeMemorySeg
-       pop      ax
- 
-       include  'drv.asm'
+       include  'inc\drv.asm'
  
        align    8 ;if next cod must be aligned 16
 db '12345678'

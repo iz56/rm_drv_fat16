@@ -1,54 +1,74 @@
 ;data.asm
  
  
-;ptr to dword value = first sector on first patr
        MBR_1ST_SECTOR_1ST_PATR_OFFSET = 454
+       BS_MBR_OFFSET_4BYTES_ID_MICROSOFT = 440
  
  
-;in: eax=sector (LBA48)/64 bit ?
-MapBS:
-;mov eax,0x026
-       mov      di,Fat_32_BPB
-       mov      cx,1 ; SecToLoad
-       read42
- 
- 
+;in: eax=sector (LBA)
+ReadVBR:
+;       mov      di,Fat_32_BPB
        mov      di,Fat_12_16_BPB
        mov      cx,1 ; SecToLoad
-       read42
- 
+       read42 ; - - - - - - - - - - - - > now read VBR from hdd
        ret
  
  
-Read:
-       call     .ReadFatBS
-       push     si di
+;mov di,boot ; set di=memory for BPB (+3 bytes at start)
+;mov cx,SIZE_BPB
+GetMBR_GetVBR_GetBPBfromIt:
+       pusha
+ 
+       DbgDspl  '>BS from hdd BIOS number = '
+mov al,byte [ReadSectors.DriveNumber80_81]
+       DbgDsplALh
+       DbgDspl  'h.'
+ 
+       call     .ReadSector0_MBR
+ 
+       mov      eax,[OffsetToVolimeFromStartDiskAbs]
+       call     ReadVBR
+       mov      si,Fat_12_16_BPB
+       mov      di,Fat_32_BPB ;si=di (virtual)
+ 
+ 
 ;input:
 ;si = ptr to data (512bytes)
 ;eax = num of sector (LBA)
        push     di
+       mov      eax,[OffsetToVolimeFromStartDiskAbs]
        call     DisplayToUser ;disp512.asm
        keyWx
        pop      si
+       mov      eax,[OffsetToVolimeFromStartDiskAbs]
        call     DisplayToUser ;disp512.asm
  
-       pop      di si
        call     .DisplayBS_FAT
+ 
+       popa ;restore cx ,di
+       mov      si,word Fat_12_16_BPB
+.l1:
+       mov      al,[si]
+       mov      [di],al
+       inc      si
+       inc      di
+       dec      cx
+       jnz      .l1
+ 
        ret
  
  
-.ReadFatBS:
-       keyWx
-       DbgDspl  '> Read first sector from 80h . '
+.ReadSector0_MBR:
  
+       keyWx
+       DbgDspl  '> Read first sector (MBR?). '
  
        push     ds
        pop      es
        mov      di, .Buf512
        mov      cx,1 ; SecToLoad
        xor      eax,eax ;mbr sector 1th
- 
-       read42
+       read42 ; - - - - - - - - - - - - > now read MBR from hdd
  
        mov      si, .Buf512
        xor      eax,eax ;mbr sector 1th
@@ -68,22 +88,12 @@ DbgDspl '> 1 patrition start (4 bytes LBA sector): '
        mov      bx, MBR_1ST_SECTOR_1ST_PATR_OFFSET
        add      bx,word .Buf512
        mov      eax,dword [bx]
-; DbgDsplEAXh
-       DbgDsplEAXh_prefix0x
+       mov      [OffsetToVolimeFromStartDiskAbs],eax
  
+       DbgDsplEAXh_prefix0x
  
        DbgDsplLine
 DbgDspl '> BS from 1th patrition : '
- 
-       mov      bx, MBR_1ST_SECTOR_1ST_PATR_OFFSET
-       add      bx, .Buf512
-       mov      eax,dword [bx]
- 
-       mov      [OffsetToVolimeFromStartDiskAbs],eax
- 
-       call     MapBS
-       mov      si,Fat_12_16_BPB
-       mov      di,Fat_32_BPB
  
        ret
  
@@ -180,6 +190,7 @@ DbgDspl ' > Text 8 bytes ASCII :['
 .parse32:
        DbgDsplLine
 DbgDspl '> FAT32 spec: '
+DbgDspl '---It is not writed---'
  
        DbgDsplLine
        ret
@@ -255,11 +266,46 @@ DbgDspl ' >Count of sectors in reserved region (dec) : '
  
        ret
 .ptrBuf dw ?
+ 
+virtual at boot
 .Buf512 rb 512
+end virtual
  
+OffsetToVolimeFromStartDiskAbs dd ?
  
+;All it will be overwrite - from boot to 0x036
+boot:
+rb 3
+bsOemName rb 8 ; 0x03
+ 
+; BPB /
+bpbBytesPerSector rw 1 ; 0x0B
+bpbSectorsPerCluster rb 1 ; 0x0D
+bpbReservedSectors rw 1 ; 0x0E
+bpbNumberOfFATs rb 1 ; 0x10
+bpbRootEntries rw 1 ; 0x11
+bpbTotalSectors rw 1 ; 0x13
+bpbMedia rb 1 ; 0x15
+bpbSectorsPerFAT rw 1 ; 0x16
+bpbSectorsPerTrack rw 1 ; 0x18
+bpbHeadsPerCylinder rw 1 ; 0x1A
+bpbHiddenSectors rd 1 ; 0x1C
+bpbTotalSectorsBig rd 1 ; 0x20
+;/ BPB
+ 
+bsDriveNumber rb 1 ; 0x24
+bsUnused rb 1 ; 0x25
+bsExtBootSignature rb 1 ; 0x26
+bsSerialNumber rd 1 ; 0x27
+bsVolumeLabel rb 8 ; 0x2B
+bsFileSystem rb 6 ; 0x36
+ 
+       SIZE_BPB = $-boot
+ 
+;Top = Wexit+100h
+;virtual at Top
 Fat_12_16_BPB:
-       rb       11
+rb 11
 .BytsPerSec rw 1
 .SecPerClus rb 1
 .RsvdSecCnt rw 1; or =32 for fat32
@@ -281,13 +327,14 @@ _f1216:
 .FilSysType rb 8
  
 ; set the BOOT-signature at byte 510. ;
-       rb       Fat_12_16_BPB+512-2-$
+rb Fat_12_16_BPB+512-2-$
 .Sig rb 2
  
  
+virtual at Fat_12_16_BPB
  
 Fat_32_BPB:
-       rb       11
+rb 11
 .BytsPerSec rw 1
 .SecPerClus rb 1
 .RsvdSecCnt rw 1; or =32 for fat32
@@ -317,8 +364,8 @@ _f32:
 .FilSysType rb 8
  
 ; set the BOOT-signature at byte 510. ;
-       rb       Fat_32_BPB+512-2-$
+rb Fat_32_BPB+512-2-$
 .Sig rb 2
  
- 
+end virtual
 ;EOF

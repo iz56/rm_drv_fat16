@@ -11,11 +11,15 @@ macro align value { rb (value-1) - ($ + value-1) mod value }
  
        macro    printDXstrDos {
 ;must be es=ds
-; call DosInt21h
-       mov      ax,0
-       mov      si,dx
-       int      87h
-;call PrintString09h
+;push es
+;mov ah,9
+;int 21h
+;pop es
+ 
+        mov      ax,0
+        mov      si,dx
+        int      87h
+ 
        }
  
        macro    DbgDsplALmm {
